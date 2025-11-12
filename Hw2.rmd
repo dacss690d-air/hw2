@@ -1,0 +1,67 @@
+---
+title: "HW2 - DACSS 690D"
+subtitle: "Cambridge Gas Station Location Feasibility"
+author: "Antonia Rohlfing"
+date: "2025-11-09"
+output: 
+  flexdashboard::flex_dashboard:
+  orientation: columns
+---
+
+```{r setup, include=FALSE}
+library(flexdashboard)
+library(ggplot2)
+library(dplyr)
+library(sf)
+
+# import the spatial data from raw github
+cambridge_url <- "https://github.com/dacss690d-air/hw2/raw/refs/heads/main/cambridge_analysis.gpkg"  
+
+st_layers(cambridge_url)
+```
+## Column {data-width=150}
+
+Data Source: [GitHub - dacss690d-air/hw2](https://github.com/dacss690d-air/hw2)
+
+## Column {data-width=150}
+
+```{r, echo=FALSE, results='hide'}
+fuel_stations <- st_read(cambridge_url, layer = 'fuel_stations')
+schools <- st_read(cambridge_url, layer = 'schools')
+suitable_roads <- st_read(cambridge_url,layer = 'suitable_roads')
+gas_buffered <- st_read(cambridge_url, layer = 'gas_buffered')
+gas_centers <- st_read(cambridge_url, layer = 'gas_centers')
+fuelmove <- st_read(cambridge_url, layer = 'fuelmove')
+```
+
+```{r}
+#visualize
+library(scales)
+library(ggspatial)
+
+ggplot() +
+  geom_sf(data = fuel_stations, aes(color = 'Existing Gas Stations'), size = 3) + geom_sf(data=fuel_stations, aes(color='Existing Gas Stations'), size=3)+
+  geom_sf(data=schools, aes(color='Schools'), size=3)+
+  geom_sf(data=suitable_roads, aes(color='Suitable Roads'), size=4)+
+  geom_sf(data=gas_buffered, aes(color='Relocation Area'), size=4, fill=NA)+
+  geom_sf(data=gas_centers, aes(color='Center of Relocation Area'), shape=1, size=2, fill=NA)+
+  geom_sf(data=fuelmove, aes(color='Gas Stations to Relocate'), size=3)+
+  scale_color_manual(name="Legend",
+                     values=c('Suitable Roads' = '#679453',
+               'Relocation Area' = 'darkblue',
+               'Center of Relocation Area' = '#194F04',
+               'Existing Gas Stations' = '#EBDD44',
+               'Schools' = '#8744EB',
+               'Gas Stations to Relocate' = '#C43006'),
+    breaks = c('Suitable Roads', 'Relocation Area',
+               'Center of Relocation Area', 'Existing Gas Stations',
+               'Schools', 'Gas Stations to Relocate')) +
+  scale_x_continuous(labels = label_number(suffix = " m")) +
+  scale_y_continuous(labels = label_number(suffix = " m")) +
+  labs(x = "East", 
+       y = "North",
+       title = "Cambridge Gas Station Relocation") +
+  theme_minimal()
+
+```
+
